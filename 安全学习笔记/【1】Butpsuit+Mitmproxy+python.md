@@ -16,7 +16,7 @@
 * **burpsuite：一级代理，修改response中js，去除发送请求前的编码动作使请求以明文形式发送**
 * **mitmproxy：二级代理，在addon中加载pyexec完成对请求体的加密编码**
   **实现效果：**
-  ![image-20240601195101251](./resources\images\01-1.png)
+  ![](.\resources\images\01-1.png)
 
 ## mitmproxy 工具入门
 
@@ -29,7 +29,7 @@
   **MitmWeb 是 mitmproxy 的基于 Web 的界面。
   **mitmdump** is the command-line version of mitmproxy. Think tcpdump for HTTP.**
   **mitmdump 是 mitmproxy 的命令行版本。想想 http 的 tcpdump。
-* ![image-20240601191136516](./resources\images\01-2.png)
+* ![](./resources\images\01-2.png)
   **用法：**
   **先创建一个php文件，接受请求后会把请求头和post的data 处理为json格式echo 出来**
 
@@ -105,7 +105,7 @@ addons = [
 
 **重放包**
 
-![image-20240605230750252](./resources\images\01-5.png)
+![image-20240605230750252](.\resources\images\01-5.png)
 
 **可以看到服务器接受的包已近被理了 ，这是最基本的用法。**
 
