@@ -29,7 +29,7 @@
   **MitmWeb 是 mitmproxy 的基于 Web 的界面。
   **mitmdump** is the command-line version of mitmproxy. Think tcpdump for HTTP.**
   **mitmdump 是 mitmproxy 的命令行版本。想想 http 的 tcpdump。
-* ![](./resources\images\01-2.png)
+* ![](.\resources\images\01-2.png)
   **用法：**
   **先创建一个php文件，接受请求后会把请求头和post的data 处理为json格式echo 出来**
 
@@ -61,7 +61,7 @@
 
   **之前的包：**
 
-  ![image-20240605230654390](./resources\images\01-3.png)
+  ![](.\resources\images\01-3.png)
 
 **python脚本**
 
@@ -101,7 +101,7 @@ addons = [
 
 `D:\Apps\mitmproxy\bin\mitmweb.exe  --listen-port 8888 -s ./change-post.py`
 
-![image-20240605230836147](./resources\images\01-4.png)
+![image-20240605230836147](.\resources\images\01-4.png)
 
 **重放包**
 
