@@ -15,3 +15,5 @@
 [奇安信攻防社区-完全零基础入门Fastjson系列漏洞（基础篇）](https://forum.butian.net/share/3055)
 
 [RCE 遇到受限 shell 的突破](https://unsafe.sh/go-229203.html)
+
+[【溯源反制】自搭建蜜罐到反制攻击队](https://forum.butian.net/share/2405)

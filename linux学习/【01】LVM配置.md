@@ -44,9 +44,9 @@
 
 **其他有用的命令**
 
-**lvscan**：扫描系统中的所有逻辑卷并显示它们的信息。**
-****vgscan**：扫描系统中的所有卷组并显示它们的信息。**
-****pvscan**：扫描系统中的所有物理卷并显示它们的信息。
+**lvscan**：扫描系统中的所有逻辑卷并显示它们的信息。
+****vgscan**：**扫描系统中的所有卷组并显示它们的信息。
+**pvscan**：扫描系统中的所有物理卷并显示它们的信息。
 
 ![image-20240620000415339](./resources/images/01-4.png)
 
@@ -71,11 +71,11 @@ mount /dev/vgname/lvname  /opt
 
 **先umount 挂载**
 
-**lvremove /dev/vgname/lvname **
+**lvremove /dev/vgname/lvname**
 
 ![image-20240620003032444](./resources/images/01-5.png)
 
-**vgremove /dev/vgname **
+**vgremove /dev/vgname**
 **pvremove /dev/sdb/sdc**
 
 ---
@@ -103,15 +103,15 @@ mount /dev/vgname/lvname  /opt
 **加入一块新的硬盘 sdd**
 
 **pvcreate /dev/sdd**
-**vgextend  vg_to_extend  /dev/sdd **
+vgextend  vg_to_extend  /dev/sdd
 
 ### 缩小逻辑卷
 
 **缩小文件系统要unmount 而且是先缩小上城文件系统**
 
-**umount  /dev/vgname/lvname**
-**resize2fs /dev/vgname/lvname 9G 缩小文件系统**
-**lvreduce -L -1G /dev/vgname/lvname  缩小lv**
-**lvdisplay**
-**mount  /dev/vgname/lvname /opt **
-** resize 的大小和最后缩小的大小要一致不然可能会损坏文件系统**
+umount  /dev/vgname/lvname
+resize2fs /dev/vgname/lvname 9G 缩小文件系统
+lvreduce -L -1G /dev/vgname/lvname  缩小lv
+lvdisplay
+mount  /dev/vgname/lvname /opt
+resize 的大小和最后缩小的大小要一致不然可能会损坏文件系统
