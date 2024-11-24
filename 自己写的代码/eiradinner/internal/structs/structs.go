@@ -49,11 +49,11 @@ type FileTransferMessage struct {
 	ChunkContent []byte `json:"chunk_content"`
 }
 
-type FileMessage struct { //上传时是将文件放到FilePath中，下载时是将FilePath中指定的文件下载
-	MessageType int    `json:"messagetype"`
-	Timestamp   string `json:"timestamp"`
-	FilePath    string `json:"file_name"`
-}
+// type FileMessage struct { //上传时是将文件放到FilePath中，下载时是将FilePath中指定的文件下载
+// 	MessageType int    `json:"messagetype"`
+// 	Timestamp   string `json:"timestamp"`
+// 	FilePath    string `json:"file_name"`
+// }
 
 type ClientResponse struct {
 	MessageType int    `json:"messagetype"` //3

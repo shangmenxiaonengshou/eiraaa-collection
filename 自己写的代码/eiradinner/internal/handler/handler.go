@@ -6,7 +6,9 @@ import (
 	"eiradinner/internal/structs"
 	"encoding/json"
 	"fmt"
+	"io"
 	"io/ioutil"
+	"log"
 	"net"
 	"os"
 	"strings"
@@ -18,6 +20,7 @@ import (
 
 var FileNAME = make(chan string, 5)
 var CurrentDownloadFile string
+var CurrentUploadFile string
 
 func RemoveFirstOccurrence(input string, toRemove string) string {
 	index := strings.Index(input, toRemove)
@@ -84,7 +87,7 @@ func HandleclientMesseage(conn net.Conn, data []byte) {
 	case 4: //从client 下载文件
 		fmt.Print("开始接收文件")
 		filesavepath := CurrentDownloadFile
-		Resivefilefromclient(conn, data, filesavepath)
+		Resivefile(conn, data, filesavepath)
 
 	}
 
@@ -109,7 +112,7 @@ func convertToUTF8(data []byte) (string, error) {
 	return string(utf8Data), nil
 }
 
-func Resivefilefromclient(conn net.Conn, data []byte, filesavepath string) {
+func Resivefile(conn net.Conn, data []byte, filesavepath string) {
 	fmt.Println(filesavepath)
 	n := len(data)
 	var msg structs.FileTransferMessage
@@ -154,4 +157,63 @@ func Resivefilefromclient(conn net.Conn, data []byte, filesavepath string) {
 
 	fmt.Println("File received successfully")
 
+}
+
+func Sendfile(conn net.Conn, data []byte) { //向server 端传输文件
+	var fileessage structs.FileNameMessage
+	json.Unmarshal(data, &fileessage)
+	filepath := fileessage.FilePath
+	file, err := os.Open(filepath)
+	if err != nil {
+		fmt.Println("Error opening file:", err)
+		return
+	}
+	defer file.Close()
+
+	// 获取文件信息
+	fileInfo, err := file.Stat()
+	print(fileInfo)
+	if err != nil {
+		fmt.Println("Error getting file info:", err)
+		return
+	}
+	const chunkSize = 1024 * 1024 // 定义chunk大小为1M
+	log.Println("文件大小为", fileInfo.Size())
+	totalChunks := int(fileInfo.Size()+chunkSize-1) / chunkSize // chunkSize
+	fmt.Print("开始分块传输")
+	for i := 0; i < totalChunks; i++ {
+		// 读取分块内容
+		chunkContent := make([]byte, chunkSize)
+		n, err := file.Read(chunkContent)
+		fmt.Printf("读取数据为%d\n", n)
+		if err != nil && err != io.EOF {
+			fmt.Println("Error reading file:", err)
+			return
+		}
+		chunkContent = chunkContent[:n]
+		filesendmessage := structs.FileTransferMessage{
+			MessageType:  4,
+			Timestamp:    time.Now().Format(time.RFC3339),
+			FilePath:     filepath,
+			FileSize:     fileInfo.Size(),
+			ChunkNumber:  i + 1,
+			TotalChunks:  totalChunks,
+			ChunkContent: chunkContent,
+		}
+		messageBytes, err := json.Marshal(filesendmessage)
+		fmt.Print(string(messageBytes))
+		if err != nil {
+			fmt.Println("Error marshaling message:", err)
+			return
+		}
+		_, err = conn.Write(messageBytes)
+		if err != nil {
+			fmt.Println("Error sending message:", err)
+			return
+		}
+
+		fmt.Printf("Sent chunk %d of %d\n", i+1, totalChunks)
+	}
+
+	fmt.Println("File sent successfully")
 }

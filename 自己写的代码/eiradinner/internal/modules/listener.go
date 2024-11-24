@@ -59,6 +59,12 @@ func Createlistener(args []string) {
 	ip := args[2]
 	port := args[3]
 
+	for _, listener := range ALL_LISTENERS {
+		if listener.Name == listener_name {
+			fmt.Printf("监听器名称 %s 已存在，无法重复创建\n", listener_name)
+			return
+		}
+	}
 	// 创建listener
 	listener, err := net.Listen("tcp", ip+":"+port)
 	if err != nil {

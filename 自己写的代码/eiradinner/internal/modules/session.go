@@ -6,7 +6,10 @@ import (
 	"eiradinner/internal/structs"
 	"encoding/json"
 	"fmt"
+	"io"
+	"log"
 	"net"
+	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -90,7 +93,7 @@ func IntoSession(args []string, reader *bufio.Reader) {
 				EexcCommandInSession(handler.RemoveFirstOccurrence(inputinsession, "shell "), session)
 			}
 		case "upload":
-			UploadFileInSession(command)
+			UploadFileInSession(command, session.Conn)
 		case "download":
 			DownloadFileInSession(command, session.Conn)
 		case "scan":
@@ -158,9 +161,87 @@ func BuildSocket5InSession(args []string) {
 
 }
 
-func UploadFileInSession(args []string) {
+func UploadFileInSession(args []string, conn net.Conn) {
+	if len(args) != 3 {
+		fmt.Print("使用方法： upload <文件名>  <文件保存路径> ")
+		return
+	}
+	fmt.Println(args)
+	filepath := args[1]
+	filedespath := args[2]
+	file, err := os.Open(filepath)
+	if err != nil {
+		fmt.Println("Error opening file:", err)
+		return
+	}
+	defer file.Close()
 
+	// 获取文件信息
+	fileInfo, err := file.Stat()
+	print(fileInfo)
+	if err != nil {
+		fmt.Println("Error getting file info:", err)
+		return
+	}
+	const chunkSize = 1024 * 1024 // 定义chunk大小为1M
+	log.Println("文件大小为", fileInfo.Size())
+	totalChunks := int(fileInfo.Size()+chunkSize-1) / chunkSize // chunkSize
+	fmt.Print("开始分块传输")
+	for i := 0; i < totalChunks; i++ {
+		// 读取分块内容
+		chunkContent := make([]byte, chunkSize)
+		n, err := file.Read(chunkContent)
+		fmt.Printf("读取数据为%d\n", n)
+		if err != nil && err != io.EOF {
+			fmt.Println("Error reading file:", err)
+			return
+		}
+		chunkContent = chunkContent[:n]
+		filesendmessage := structs.FileTransferMessage{
+			MessageType:  2,
+			Timestamp:    time.Now().Format(time.RFC3339),
+			FilePath:     filedespath,
+			FileSize:     fileInfo.Size(),
+			ChunkNumber:  i + 1,
+			TotalChunks:  totalChunks,
+			ChunkContent: chunkContent,
+		}
+		messageBytes, err := json.Marshal(filesendmessage)
+		fmt.Print(string(messageBytes))
+		if err != nil {
+			fmt.Println("Error marshaling message:", err)
+			return
+		}
+		_, err = conn.Write(messageBytes)
+		if err != nil {
+			fmt.Println("Error sending message:", err)
+			return
+		}
+
+		fmt.Printf("Sent chunk %d of %d\n", i+1, totalChunks)
+	}
+
+	fmt.Println("File sent successfully")
 }
+
+// fileaskmessage := structs.FileTransferMessage{
+// 	MessageType: 5,
+// 	Timestamp:   time.Now().Format(time.RFC3339),
+// 	FilePath:    filename,
+// }
+// fmt.Println(fileaskmessage)
+// jsonData, err := json.Marshal(fileaskmessage)
+// if err != nil {
+// 	fmt.Println("序列化失败:", err)
+// 	return
+// }
+// fmt.Println(jsonData)
+// // handler.FileNAME <- args[2] //向文件名中写入路径
+
+// conn.Write(jsonData)
+// fmt.Print("完成firename 发送")
+// handler.CurrentDownloadFile = args[2] //向文件名中写入路径
+// }
 func DownloadFileInSession(args []string, conn net.Conn) {
 	if len(args) != 3 {
 		fmt.Print("使用方法： download <文件名>  <文件保存路径> ")
